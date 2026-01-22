@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 import { coinbaseWallet } from "../../connectors/coinbaseWallet";
 import { metaMask } from "../../connectors/metaMask";
@@ -8,6 +8,7 @@ import Metamask from "../../assets/wallet/Metamask.svg";
 import Phantom from "../../assets/wallet/Phantom.svg";
 import Coinbase from "../../assets/wallet/Coinbase.svg";
 import WalletConnect from "../../assets/wallet/WalletConnect.svg";
+import ConnectWalletButton from "./ConnectWalletButton";
 
 interface ConnectModalProps {
   isModalOpen: boolean;
@@ -43,7 +44,7 @@ const ConnectWallet: React.FC<ConnectModalProps> = ({
       window.clearTimeout(id);
     };
   }, [isModalOpen, setIsModalOpen]);
-  const activateConnector = async (label: string) => {
+  const activateConnector = useCallback(async (label: string) => {
     switch (label) {
       case "MetaMask":
         await metaMask.activate();
@@ -67,7 +68,7 @@ const ConnectWallet: React.FC<ConnectModalProps> = ({
       default:
         break;
     }
-  };
+  }, [setSelectedWallet]);
   return (
     <>
       {isModalOpen && (
@@ -105,45 +106,10 @@ const ConnectWallet: React.FC<ConnectModalProps> = ({
                   </a>
                 </p>
                 <div className="mt-6 flex flex-col gap-4">
-                  <button
-                    type="button"
-                    onClick={() => activateConnector("MetaMask")}
-                    className="flex items-center gap-4 w-full rounded-lg border border-gray-600 p-3 text-left hover:border-gray-500 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 active:opacity-90"
-                  >
-                    <img src={Metamask} alt="Metamask" />
-                    <span className="px-2 text-lg font-semibold text-white font-inter">
-                      Continue with Metamask
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className="flex items-center gap-4 w-full rounded-lg border border-gray-600 p-3 text-left hover:border-gray-500 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 active:opacity-90"
-                  >
-                    <img src={Phantom} alt="Phantom" />
-                    <span className="px-2 text-lg font-semibold text-white font-inter">
-                      Continue with Phantom
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => activateConnector("Coinbase")}
-                    className="flex items-center gap-4 w-full rounded-lg border border-gray-600 p-3 text-left hover:border-gray-500 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 active:opacity-90"
-                  >
-                    <img src={Coinbase} alt="Coinbase" />
-                    <span className="px-2 text-lg font-semibold text-white font-inter">
-                      Continue with Coinbase
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => activateConnector("WalletConnect")}
-                    className="flex items-center gap-4 w-full rounded-lg border border-gray-600 p-3 text-left hover:border-gray-500 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 active:opacity-90"
-                  >
-                    <img src={WalletConnect} alt="WalletConnect" />
-                    <span className="px-2 text-lg font-semibold text-white font-inter">
-                      Continue with WalletConnect
-                    </span>
-                  </button>
+                  <ConnectWalletButton image={Metamask} label="MetaMask" activateConnector={activateConnector} />
+                  <ConnectWalletButton image={Phantom} label="Phantom" activateConnector={activateConnector} />
+                  <ConnectWalletButton image={Coinbase} label="Coinbase" activateConnector={activateConnector} />
+                  <ConnectWalletButton image={WalletConnect} label="WalletConnect" activateConnector={activateConnector} />
                 </div>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useWeb3React } from "@web3-react/core";
 
 import { metaMask } from "../../../connectors/metaMask";
@@ -36,7 +36,11 @@ const ConnectAccount: React.FC<WantedChain> = () => {
     "MetaMask" | "WalletConnect" | "Coinbase Wallet" | null
   >(null);
 
-  const disconnect = async () => {
+  const handleClose = useCallback(() => {
+    setAnchorEl(null);
+  }, [setAnchorEl]);
+
+  const disconnect = useCallback(async () => {
     const connectorMapping = {
       MetaMask: metaMask,
       WalletConnect: walletConnect,
@@ -57,13 +61,10 @@ const ConnectAccount: React.FC<WantedChain> = () => {
         await connector.close();
       }
     }
-  };
+  }, [selectedWallet, handleClose, setIsAuthModalOpen]);
   const open = Boolean(anchorEl);
 
   const id = open ? "simple-popover" : undefined;
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <>
@@ -75,8 +76,8 @@ const ConnectAccount: React.FC<WantedChain> = () => {
             label="Wallet Connect"
             startIcon={
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M12 7V12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 7V12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             }
             onClick={() => setIsAuthModalOpen(true)}

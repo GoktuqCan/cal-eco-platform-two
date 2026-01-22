@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import WhiteLogo from "../assets/images/header-logo-white.svg";
 
@@ -129,9 +129,9 @@ const Papers = () => {
     ];
   }, []);
 
-  const handleRoute = (path: string) => {
+  const handleRoute = useCallback((path: string) => {
     console.log("Routing to : ", path);
-  };
+  }, []);
 
   return (
     <>

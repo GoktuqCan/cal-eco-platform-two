@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 import coinbase_Logo from "../../assets/coinbase_Logo.png";
 import metamask_Logo from "../../assets/svg/metamask_Logo.svg";
@@ -39,7 +39,7 @@ const ConnectModal: React.FC<ConnectModalProps> = ({
     };
   }, [isModalOpen, setIsModalOpen]);
 
-  const activateConnector = async (label: string) => {
+  const activateConnector = useCallback(async (label: string) => {
     try {
       switch (label) {
         case "MetaMask":
@@ -76,7 +76,7 @@ const ConnectModal: React.FC<ConnectModalProps> = ({
     } finally {
       setIsModalOpen(false);
     }
-  };
+  }, [setIsModalOpen, setSelectedWallet]);
   return (
     <>
       {isModalOpen && (

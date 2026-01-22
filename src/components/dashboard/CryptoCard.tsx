@@ -1,22 +1,26 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { CryptoCardData } from "../../services/dashboard.service";
 
 interface CryptoCardProps {
   data: CryptoCardData;
 }
 
+const formatValue = (value: number): string => {
+  if (value >= 1000000) {
+    return `$${(value / 1000000).toFixed(2)}M`;
+  } else if (value >= 1000) {
+    return `$${(value / 1000).toFixed(2)}k`;
+  }
+  return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
 const CryptoCard: React.FC<CryptoCardProps> = ({
   data,
 }) => {
-  const formatValue = (value: number): string => {
-    if (value >= 1000000) {
-      return `$${(value / 1000000).toFixed(2)}M`;
-    } else if (value >= 1000) {
-      return `$${(value / 1000).toFixed(2)}k`;
-    }
-    return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
 
+  const formattedValue = useMemo(() => {
+    return formatValue(data.value);
+  }, [data.value]);
   return (
     <div className="relative flex items-center justify-center w-full">
       <div className="flex flex-col items-center justify-center w-full px-6 py-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
@@ -30,7 +34,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({
           </div>
         )}
         <div className="text-2xl font-semibold text-white mb-1 mt-8">
-          {formatValue(data.value)}
+          {formattedValue}
         </div>
         <div className={`text-sm ${data.change >= 0 ? "text-green-500" : "text-red-500"}`}>
           {data.changeText}

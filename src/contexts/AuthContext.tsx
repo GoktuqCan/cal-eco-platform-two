@@ -1,4 +1,4 @@
-import React, { useState, createContext, useEffect } from "react";
+import React, { useState, createContext, useEffect, useCallback } from "react";
 import CustomModal from "../UI/CustomModal";
 import Login from "../components/auth/Login";
 import Register from "../components/auth/Register";
@@ -17,12 +17,12 @@ export type AuthContextType = {
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  setUser: () => {},
+  setUser: () => { },
   isAuthenticated: false,
-  setIsAuthenticated: () => {},
-  toggleModal: () => {},
-  setAuthAction: () => {},
-  updateAuthAction: () => {},
+  setIsAuthenticated: () => { },
+  toggleModal: () => { },
+  setAuthAction: () => { },
+  updateAuthAction: () => { },
 });
 
 export const ActionTypes = {
@@ -74,15 +74,15 @@ const AuthContextProvider = ({ children }: any) => {
 
   const Component = authAction?.component;
 
-  const toggleModal = (status: boolean | null = null) => {
+  const toggleModal = useCallback((status: boolean | null = null) => {
     setShowModal(status !== null ? status : !showModal);
-  };
+  }, [showModal]);
 
-  const updateAuthAction = (inputAction: string) => {
+  const updateAuthAction = useCallback((inputAction: string) => {
     setAuthAction(
       AuthActions.find(({ action }) => action === inputAction) as AuthActionType
     );
-  };
+  }, [setAuthAction]);
 
   useEffect(() => {
     if (Component) {

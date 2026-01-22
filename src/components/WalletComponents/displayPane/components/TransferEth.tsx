@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { useWeb3React } from "@web3-react/core";
 import { useSnackbar } from "notistack";
@@ -15,7 +15,7 @@ const TransferEth: React.FC = () => {
   const [amount, setAmount] = useState<number | null>();
   const [receiver, setReceiver] = useState<string>();
 
-  function handleSignMessage(event: { preventDefault: () => void }): void {
+  const handleSignMessage = useCallback(  (event: { preventDefault: () => void }): void => {
     event.preventDefault();
 
     if (!provider || !account) {
@@ -51,7 +51,7 @@ const TransferEth: React.FC = () => {
     }
 
     if (amount) transfer(amount);
-  }
+  }, [provider, account, receiver, amount, enqueueSnackbar]);
 
   return (
     <div style={{ width: "40%", minWidth: "250px" }}>

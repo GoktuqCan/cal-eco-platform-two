@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 
 import LumangiLogo from "../assets/images/LumangiLogo.svg";
 import RewardWheel from "../assets/images/RewardWheel.svg";
@@ -20,9 +20,9 @@ export function Header() {
   const { updateAuthAction, isAuthenticated } = useContext(AuthContext);
   const { account } = useWeb3React();
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     updateAuthAction(ActionTypes.Login);
-  }; //TODO
+  }, [updateAuthAction]); //TODO
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
   const [selectedWallet, setSelectedWallet] = useState<

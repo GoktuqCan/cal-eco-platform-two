@@ -1,4 +1,4 @@
-import { MouseEvent, ReactElement, SetStateAction, useState } from "react";
+import { MouseEvent, ReactElement, SetStateAction, useCallback, useState } from "react";
 
 import { useWeb3React } from "@web3-react/core";
 import { useSnackbar } from "notistack";
@@ -8,13 +8,13 @@ const SignMessage: React.FC = (): ReactElement => {
   const [messageAuth, setMessageAuth] = useState<string>("");
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleMessageChange = (e: {
+  const handleMessageChange = useCallback((e: {
     target: { value: SetStateAction<string> };
   }) => {
     setMessageAuth(e.target.value);
-  };
+  }, [setMessageAuth]);
 
-  function handleSignMessage(event: MouseEvent<HTMLButtonElement>): void {
+  const handleSignMessage = useCallback((event: MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
 
     if (!provider || !account) {
@@ -65,7 +65,7 @@ const SignMessage: React.FC = (): ReactElement => {
     }
 
     signMessage(account);
-  }
+  }, [provider, account, chainId, messageAuth, enqueueSnackbar]);
 
   return (
     <div style={{ width: "40%", minWidth: "250px" }}>

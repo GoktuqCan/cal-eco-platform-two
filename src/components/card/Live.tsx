@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState, useRef, useContext, useCallback, useMemo } from "react";
 import { BigNumber } from "@ethersproject/bignumber";
 
 import Button from "../../UI/Button";
@@ -109,9 +109,8 @@ const Body = ({
             </div>
           ) : (
             <div
-              className={`space-y-2 h-48 border-[#3D8DFF] border-[1px] border-solid p-2 mx-2 rounded-lg text-white ${
-                disableUpDown ? "opacity-40" : ""
-              }`}
+              className={`space-y-2 h-48 border-[#3D8DFF] border-[1px] border-solid p-2 mx-2 rounded-lg text-white ${disableUpDown ? "opacity-40" : ""
+                }`}
             >
               <div className="flex justify-between mb-4 text-xs font-bold">
                 <div>Prize Pool</div>
@@ -173,12 +172,12 @@ export const FlipCardBack = ({
   betBullHandler: Function;
   disabled: boolean;
 }) => {
-  const flipCard = () => {
+  const flipCard = useCallback(() => {
     if (innerRef && innerRef.current) {
       innerRef.current.style.transform = "rotateY(0deg)";
       setShowBack(false);
     }
-  };
+  }, [innerRef, setShowBack]);
   const [rangeValue, setRangeValue] = useState("0");
   const [inputVal, setInputVal] = useState<number | string>("");
 
@@ -202,7 +201,7 @@ export const FlipCardBack = ({
     }
   }, [rangeValue]);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
     e.preventDefault();
     // TODO here
 
@@ -215,11 +214,12 @@ export const FlipCardBack = ({
       }
       flipCard();
     }
-  };
-  const balanceStr =
-    typeof balance === "string"
+  }, [disabled, inputVal, direction, betBullHandler, betBearHandler, flipCard]);
+  const balanceStr = useMemo(() => {
+    return typeof balance === "string"
       ? balance
       : getMaticValue(balance || BigNumber.from(0));
+  }, [balance]);
 
   return (
     <div className="flip-card-back rounded-3xl bg-[#283573] border-slate-600 border-[1px] backdrop-blur-lg w-full">
@@ -352,7 +352,7 @@ export function Live({
     upPerc = bullAmount === 0 ? bullAmount : total / bullAmount;
   }
 
-  const betBullClickHandler = () => {
+  const betBullClickHandler = useCallback(() => {
     if (innerRef && innerRef.current) {
       innerRef.current.style.transform = "rotateY(180deg)";
       setDirection("UP");
@@ -361,8 +361,8 @@ export function Live({
         setDisabledBack(true);
       }
     }
-  };
-  const betBearClickHandler = () => {
+  }, [innerRef, setDirection, setShowBack, account]);
+  const betBearClickHandler = useCallback(() => {
     if (innerRef && innerRef.current) {
       innerRef.current.style.transform = "rotateY(180deg)";
       setDirection("DOWN");
@@ -371,7 +371,7 @@ export function Live({
         setDisabledBack(true);
       }
     }
-  };
+  }, [innerRef, setDirection, setShowBack, account]);
 
   useEffect(() => {
     if (disabledBack && account) {

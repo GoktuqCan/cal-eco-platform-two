@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { postApi } from "../../services/axios.service";
 import { toast } from "react-toastify";
@@ -15,13 +15,13 @@ const ForgotPassword = () => {
 
   const [apiError, setApiError] = useState("");
 
-  const handleRedirectToLogin = (e: any) => {
+  const handleRedirectToLogin = useCallback((e: any) => {
     e.preventDefault();
     toggleModal();
     updateAuthAction(ActionTypes.Login);
-  };
+  }, [toggleModal, updateAuthAction]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = useCallback(async (data: any) => {
     try {
       setApiError("");
       const result = await postApi("/users/forgot-password", data);
@@ -33,7 +33,7 @@ const ForgotPassword = () => {
       console.log("Error: ", e?.response?.data || e);
       setApiError(e?.response?.data?.message || "Invalid Credentials");
     }
-  };
+  }, [toggleModal]);
 
   return (
     <div className="flex flex-col items-center p-4 border-2 border-solid shadow-lg w-full border-foreground-night-400 bg-custom-gradient bg-blend-hard-light rounded-xl">

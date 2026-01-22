@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Holding } from "../../services/dashboard.service";
 import MiniChart from "./MiniChart";
 import { formatCurrency, formatPercent } from "../../utils/formatters";
@@ -15,6 +15,60 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings }) => {
   const endIndex = startIndex + itemsPerPage;
   const currentHoldings = holdings.slice(startIndex, endIndex);
 
+  const table = useMemo(() => {
+    return (currentHoldings.map((holding) => (
+      <tr
+        key={holding.id}
+        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+      >
+        <td className="py-4 px-4">
+          <div className="flex items-center gap-2">
+            {holding.icon && (
+              <img
+                src={holding.icon}
+                alt={holding.name}
+                className="w-6 h-6 object-contain"
+              />
+            )}
+            <div className="flex flex-col">
+              <span className="text-white font-medium">
+                {holding.name}
+              </span>
+              <span className="text-sm text-white/60">
+                {holding.symbol}
+              </span>
+            </div>
+          </div>
+        </td>
+        <td className="text-right py-4 px-4 text-white">
+          {formatCurrency(holding.value)}
+        </td>
+        <td
+          className={`text-right py-4 px-4 ${holding.profitLoss >= 0 ? "text-green-500" : "text-red-500"
+            }`}
+        >
+          {formatCurrency(holding.profitLoss)}
+        </td>
+        <td
+          className={`text-right py-4 px-4 ${holding.profitLossPercent >= 0
+            ? "text-green-500"
+            : "text-red-500"
+            }`}
+        >
+          {formatPercent(holding.profitLossPercent)}
+        </td>
+        <td className="text-right py-4 px-4">
+          <div className="flex justify-end">
+            <MiniChart
+              data={holding.chartData}
+              isPositive={holding.profitLossPercent >= 0}
+            />
+          </div>
+        </td>
+      </tr>
+    )))
+  }, [currentHoldings]);
+
   return (
     <div className="w-full bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-6">
       <div className="flex items-center justify-between mb-4">
@@ -22,7 +76,7 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings }) => {
         <button
           type="button"
           className="text-sm text-blue-400 hover:text-blue-300"
-          onClick={() => {}}
+          onClick={() => { }}
           aria-label="View all holdings"
         >
           View all
@@ -51,59 +105,7 @@ const HoldingsTable: React.FC<HoldingsTableProps> = ({ holdings }) => {
             </tr>
           </thead>
           <tbody>
-            {currentHoldings.map((holding) => (
-              <tr
-                key={holding.id}
-                className="border-b border-white/5 hover:bg-white/5 transition-colors"
-              >
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-2">
-                    {holding.icon && (
-                      <img 
-                        src={holding.icon} 
-                        alt={holding.name}
-                        className="w-6 h-6 object-contain"
-                      />
-                    )}
-                    <div className="flex flex-col">
-                      <span className="text-white font-medium">
-                        {holding.name}
-                      </span>
-                      <span className="text-sm text-white/60">
-                        {holding.symbol}
-                      </span>
-                    </div>
-                  </div>
-                </td>
-                <td className="text-right py-4 px-4 text-white">
-                  {formatCurrency(holding.value)}
-                </td>
-                <td
-                  className={`text-right py-4 px-4 ${
-                    holding.profitLoss >= 0 ? "text-green-500" : "text-red-500"
-                  }`}
-                >
-                  {formatCurrency(holding.profitLoss)}
-                </td>
-                <td
-                  className={`text-right py-4 px-4 ${
-                    holding.profitLossPercent >= 0
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {formatPercent(holding.profitLossPercent)}
-                </td>
-                <td className="text-right py-4 px-4">
-                  <div className="flex justify-end">
-                    <MiniChart
-                      data={holding.chartData}
-                      isPositive={holding.profitLossPercent >= 0}
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {table}
           </tbody>
         </table>
       </div>

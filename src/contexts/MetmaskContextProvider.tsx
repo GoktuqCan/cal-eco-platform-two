@@ -6,6 +6,7 @@ import {
   ReactNode,
   Dispatch,
   SetStateAction,
+  useCallback,
 } from "react";
 import { ethers, BigNumber } from "ethers";
 
@@ -72,7 +73,7 @@ const MetmaskContextProvider: React.FC<{
   /**
    * creates contract objects and assigns provider
    */
-  const setContracts = async () => {
+  const setContracts = useCallback(async () => {
     if (provider) {
       try {
         // Create ethers providers for contract interactions
@@ -116,7 +117,7 @@ const MetmaskContextProvider: React.FC<{
         setErrorMessage("Failed to connect to the blockchain network");
       }
     }
-  };
+  }, [provider, chainId]);
 
   /**
    *

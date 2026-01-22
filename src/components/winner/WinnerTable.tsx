@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
 const rows = [
   {
@@ -42,14 +42,14 @@ const WinnerTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const handleChangePage = (_event: any, newPage: number) => {
+  const handleChangePage = useCallback((_event: any, newPage: number) => {
     setPage(newPage);
-  };
+  }, [setPage]);
 
-  const handleChangeRowsPerPage = (event: any) => {
+  const handleChangeRowsPerPage = useCallback((event: any) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+  }, [setRowsPerPage, setPage]);
 
   const pagedRows = useMemo(
     () => rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),

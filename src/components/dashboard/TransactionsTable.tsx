@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Transaction } from "../../services/dashboard.service";
 import { formatCurrency } from "../../utils/formatters";
 
 interface TransactionsTableProps {
   transactions: Transaction[];
 }
+
+const formatUnits = (units: number): string => {
+  return units.toLocaleString("en-US", { maximumFractionDigits: 8 });
+};
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   transactions,
@@ -16,9 +20,51 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const endIndex = startIndex + itemsPerPage;
   const currentTransactions = transactions.slice(startIndex, endIndex);
 
-  const formatUnits = (units: number): string => {
-    return units.toLocaleString("en-US", { maximumFractionDigits: 8 });
-  };
+  const transactionsTable = useMemo(() => {
+    return (currentTransactions.map((transaction) => (
+      <tr
+        key={transaction.id}
+        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+      >
+        <td className="py-4 px-4">
+          <div className="flex items-center gap-2">
+            {transaction.icon && (
+              <img
+                src={transaction.icon}
+                alt={transaction.symbol}
+                className="w-5 h-5 object-contain"
+              />
+            )}
+            <span className="text-white font-medium">
+              {transaction.symbol}
+            </span>
+          </div>
+        </td>
+        <td className="py-4 px-4">
+          <span
+            className={`px-2 py-1 rounded text-sm ${transaction.action === "Buy"
+              ? "bg-green-500/20 text-green-500"
+              : "bg-red-500/20 text-red-500"
+              }`}
+          >
+            {transaction.action}
+          </span>
+        </td>
+        <td className="py-4 px-4 text-white/70">
+          {transaction.date} {transaction.time}
+        </td>
+        <td className="text-right py-4 px-4 text-white">
+          {formatUnits(transaction.units)}
+        </td>
+        <td className="text-right py-4 px-4 text-white">
+          {formatCurrency(transaction.price)}
+        </td>
+        <td className="text-right py-4 px-4 text-white font-medium">
+          {formatCurrency(transaction.total)}
+        </td>
+      </tr>
+    )))
+  }, [currentTransactions]);
 
   return (
     <div className="w-full bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-6">
@@ -51,50 +97,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {currentTransactions.map((transaction) => (
-              <tr
-                key={transaction.id}
-                className="border-b border-white/5 hover:bg-white/5 transition-colors"
-              >
-                <td className="py-4 px-4">
-                  <div className="flex items-center gap-2">
-                    {transaction.icon && (
-                      <img 
-                        src={transaction.icon} 
-                        alt={transaction.symbol}
-                        className="w-5 h-5 object-contain"
-                      />
-                    )}
-                    <span className="text-white font-medium">
-                      {transaction.symbol}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-4 px-4">
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      transaction.action === "Buy"
-                        ? "bg-green-500/20 text-green-500"
-                        : "bg-red-500/20 text-red-500"
-                    }`}
-                  >
-                    {transaction.action}
-                  </span>
-                </td>
-                <td className="py-4 px-4 text-white/70">
-                  {transaction.date} {transaction.time}
-                </td>
-                <td className="text-right py-4 px-4 text-white">
-                  {formatUnits(transaction.units)}
-                </td>
-                <td className="text-right py-4 px-4 text-white">
-                  {formatCurrency(transaction.price)}
-                </td>
-                <td className="text-right py-4 px-4 text-white font-medium">
-                  {formatCurrency(transaction.total)}
-                </td>
-              </tr>
-            ))}
+            {transactionsTable}
           </tbody>
         </table>
       </div>

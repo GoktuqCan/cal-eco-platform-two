@@ -20,6 +20,28 @@ export interface AddressInputProps {
   onChange: Dispatch<SetStateAction<string | undefined>>;
 }
 
+const Cross = ({ onClick }: { onClick: () => void }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 22 22"
+    strokeWidth="2"
+    stroke="#E33132"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    onClick={() => {
+      onClick();
+    }}
+    style={{ cursor: "pointer" }}
+  >
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
 const AddressInput: React.FC<AddressInputProps> = (props) => {
   const input = useRef<any>(null);
   const [address, setAddress] = useState<string>("");
@@ -43,33 +65,15 @@ const AddressInput: React.FC<AddressInputProps> = (props) => {
     }
   }, []);
 
-  const Cross = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 22 22"
-      strokeWidth="2"
-      stroke="#E33132"
-      fill="none"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      onClick={() => {
-        setValidatedAddress("");
-        setIsDomain(false);
-        setTimeout(function () {
-          if (input.current !== null) {
-            input.current.focus();
-          }
-        });
-      }}
-      style={{ cursor: "pointer" }}
-    >
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  );
+  const handleCrossClick = useCallback(() => {
+    setValidatedAddress("");
+    setIsDomain(false);
+    setTimeout(function () {
+      if (input.current !== null) {
+        input.current.focus();
+      }
+    });
+  }, [setValidatedAddress, setIsDomain, input]);
 
   return (
     <div className="relative w-full">
@@ -109,13 +113,12 @@ const AddressInput: React.FC<AddressInputProps> = (props) => {
           updateAddress(e.target.value);
         }}
         disabled={validatedAddress.length > 0 ? true : false}
-        className={`w-full rounded-lg border bg-transparent py-2 pl-10 pr-10 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-white/30 ${
-          validatedAddress ? "border-[rgb(33,191,150)]" : "border-white/20"
-        }`}
+        className={`w-full rounded-lg border bg-transparent py-2 pl-10 pr-10 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-white/30 ${validatedAddress ? "border-[rgb(33,191,150)]" : "border-white/20"
+          }`}
         style={props?.style}
       />
       <div className="absolute inset-y-0 right-2 flex items-center">
-        {validatedAddress && <Cross />}
+        {validatedAddress && <Cross onClick={handleCrossClick} />}
       </div>
     </div>
   );

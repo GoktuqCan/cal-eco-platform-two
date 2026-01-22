@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -38,13 +38,13 @@ const ExchangeDashboard: React.FC = () => {
   const watchlist = getWatchlist();
   const transactions = getTransactions();
 
-  const handleTokenToggle = (token: string) => {
+  const handleTokenToggle = useCallback((token: string) => {
     setSelectedTokens((prev) =>
       prev.includes(token)
         ? prev.filter((t) => t !== token)
         : [...prev, token]
     );
-  };
+  }, [setSelectedTokens]);
 
   const statsChartData = useMemo(() => {
     const maxValue = Math.max(
@@ -82,18 +82,18 @@ const ExchangeDashboard: React.FC = () => {
     ];
   }, [statistics]);
 
-  const formatCurrency = (value: number): string => {
+  const formatCurrency = useCallback((value: number): string => {
     if (value >= 1000000) {
       return `$${(value / 1000000).toFixed(2)}M`;
     } else if (value >= 1000) {
       return `$${(value / 1000).toFixed(2)}k`;
     }
     return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
+  }, []);
 
-  const formatNumber = (value: number): string => {
+  const formatNumber = useCallback((value: number): string => {
     return value.toLocaleString("en-US");
-  };
+  }, []);
 
   return (
     <div className="w-full min-h-screen px-12 py-6">

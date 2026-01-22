@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { urlToJson } from "../../services/common.service";
@@ -27,7 +27,7 @@ const Form = ({ token, closeModal }: FormProps) => {
 
   const [apiError, setApiError] = useState("");
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = useCallback(async (data: any) => {
     try {
       setApiError("");
       const result = await putApi(`/users/reset-password/${token}`, data);
@@ -38,9 +38,9 @@ const Form = ({ token, closeModal }: FormProps) => {
       console.log("Error: ", e?.response?.data || e);
       toast.error(e?.response?.data?.message || "Invalid or expired token!");
     }
-  };
+  }, [closeModal, navigate, token]);
 
-  const FORM_FIELDS = [
+  const FORM_FIELDS = useMemo(() => [
     {
       type: "password",
       fieldName: "newPassword",
@@ -63,14 +63,14 @@ const Form = ({ token, closeModal }: FormProps) => {
           value === getValues("newPassword") || "Passwords do not match",
       },
     },
-  ];
+  ], [getValues]);
 
-  const handleRedirectToLogin = (e: any) => {
+  const handleRedirectToLogin = useCallback((e: any) => {
     e.preventDefault();
     closeModal();
     navigate("/");
     updateAuthAction(ActionTypes.Login);
-  };
+  }, [closeModal, navigate, updateAuthAction]);
 
   return (
     <div className="flex flex-col items-center p-4 border-2 border-solid shadow-lg w-full border-foreground-night-400 bg-custom-gradient bg-blend-hard-light rounded-xl">
@@ -91,9 +91,8 @@ const Form = ({ token, closeModal }: FormProps) => {
         {FORM_FIELDS.map((item, index: number) => (
           <Fragment key={`reset-password-form-${index}`}>
             <input
-              className={`flex w-full px-3 py-2 ${
-                index > 0 ? "mt-4" : ""
-              } text-white border rounded-lg focus:ring focus:ring-indigo-300 bg-foreground-night-100 border-foreground-night-400`}
+              className={`flex w-full px-3 py-2 ${index > 0 ? "mt-4" : ""
+                } text-white border rounded-lg focus:ring focus:ring-indigo-300 bg-foreground-night-100 border-foreground-night-400`}
               type={item.type}
               placeholder={item.label}
               {...register(item.fieldName, item.validation)}

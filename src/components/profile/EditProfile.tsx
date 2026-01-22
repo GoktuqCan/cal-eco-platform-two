@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useRef, useState } from "react";
+import React, { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { ReactComponent as CopyIcon } from "../../assets/images/copy.svg";
@@ -191,13 +191,13 @@ const EditProfile = () => {
 
   const username = watch("username");
 
-  const handleImageSelect = (e: any, type = "profile") => {
+  const handleImageSelect = useCallback((e: any, type = "profile") => {
     const file = e.target.files[0];
     if (type === "profile") setProfileImage(file);
     else if (type === "banner1") setBanner1(file);
-  };
+  }, [setProfileImage, setBanner1]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = useCallback(async (data: any) => {
     try {
       await putApi("/users/", data);
       await updateUserInfo();
@@ -206,9 +206,9 @@ const EditProfile = () => {
       console.log("Error: ", e?.response?.data || e);
       toast.error(e?.response?.data?.message || "Something went wrong");
     }
-  };
+  }, [updateUserInfo]);
 
-  const checkUsernameExists = async () => {
+  const checkUsernameExists = useCallback(async () => {
     try {
       // Send a request to your API to check if the username already exists
       const response = await getApi(`/users/exists/username/${username}`);
@@ -226,9 +226,9 @@ const EditProfile = () => {
       console.error("Error checking username:", error);
     }
     return ""; // Return an empty string if no error
-  };
+  }, [username, clearErrors, setError]);
 
-  const FORM_FIELDS: InputProps[] = [
+  const FORM_FIELDS = useMemo(() => [
     {
       name: "firstName",
       label: "First Name",
@@ -284,7 +284,7 @@ const EditProfile = () => {
         readOnly: true,
       },
     },
-  ];
+  ], [checkUsernameExists, register]);
 
   useEffect(() => {
     if (user) {

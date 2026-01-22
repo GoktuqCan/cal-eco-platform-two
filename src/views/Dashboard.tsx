@@ -184,7 +184,7 @@ const Dashboard: React.FC<{}> = () => {
    * @param amount: amount to be sent as bet
    */
 
-  const betBearHandler = async (amount: Number) => {
+  const betBearHandler = useCallback(async (amount: Number) => {
     if (lumanagiPredictionV1Contract) {
       const abi = await postBetBearAbi(
         lumanagiPredictionV1Contract,
@@ -209,14 +209,14 @@ const Dashboard: React.FC<{}> = () => {
         }
       );
     }
-  };
+  }, [postTransaction, lumanagiPredictionV1Contract, currentEpoch, userRounds]);
 
   /**
    * Handles click of enter down button
    * @param amount: amount to be sent as bet
    */
 
-  const betBullHandler = async (amount: Number) => {
+  const betBullHandler = useCallback(async (amount: Number) => {
     if (lumanagiPredictionV1Contract) {
       const abi = await postBetBullAbi(
         lumanagiPredictionV1Contract,
@@ -241,14 +241,14 @@ const Dashboard: React.FC<{}> = () => {
         }
       );
     }
-  };
+  }, [postTransaction, lumanagiPredictionV1Contract, currentEpoch, userRounds]);
 
   /**
    * Handles claiming of the round
    * @param epoch round number to be claimed
    */
 
-  const postClaim = async (epoch: BigNumber) => {
+  const postClaim = useCallback(async (epoch: BigNumber) => {
     if (lumanagiPredictionV1Contract) {
       const abi = await postClaimAbi(lumanagiPredictionV1Contract, [epoch]);
       postTransaction(
@@ -267,7 +267,7 @@ const Dashboard: React.FC<{}> = () => {
         }
       );
     }
-  };
+  }, [postTransaction, lumanagiPredictionV1Contract, userRounds]);
 
   /**
    * Gets all display round details for display
@@ -389,7 +389,7 @@ const Dashboard: React.FC<{}> = () => {
     };
   }, [eacAggregatorProxyContract, getLatestPrice]);
 
-  const scrollCards = (where: "left" | "right") => {
+  const scrollCards = useCallback((where: "left" | "right") => {
     if (cardsContainer.current) {
       if (where === "left") {
         cardsContainer.current.scrollLeft -= SCROLL_AMOUNT;
@@ -397,11 +397,11 @@ const Dashboard: React.FC<{}> = () => {
         cardsContainer.current.scrollLeft += SCROLL_AMOUNT;
       }
     }
-  };
+  }, [cardsContainer]);
   const [age, setAge] = React.useState("");
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
     setAge(event.target.value as string);
-  };
+  }, [setAge]);
 
   return (
     <div className="w-full">

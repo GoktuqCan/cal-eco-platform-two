@@ -7,16 +7,17 @@ interface WatchlistCardProps {
   item: WatchlistItem;
 }
 
-const WatchlistCard: React.FC<WatchlistCardProps> = ({ item }) => {
-  const formatPrice = (price: number): string => {
-    if (price >= 1000) {
-      return `$${price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    } else if (price >= 1) {
-      return `$${price.toFixed(2)}`;
-    } else {
-      return `$${price.toFixed(4)}`;
-    }
-  };
+const formatPrice = (price: number): string => {
+  if (price >= 1000) {
+    return `$${price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  } else if (price >= 1) {
+    return `$${price.toFixed(2)}`;
+  } else {
+    return `$${price.toFixed(4)}`;
+  }
+}
+
+const WatchlistCard: React.FC<WatchlistCardProps> = ({ item }) => {;
 
   return (
     <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-4 hover:bg-white/10 transition-colors">

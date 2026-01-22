@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { Fragment, useContext, useState } from "react";
+import React, { Fragment, useCallback, useContext, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { ReactComponent as GoogleButton } from "../../assets/images/GoogleButton.svg";
@@ -20,13 +20,13 @@ const Register = () => {
 
   const [apiError, setApiError] = useState("");
 
-  const handleRedirectToLogin = (e: any) => {
+  const handleRedirectToLogin = useCallback((e: any) => {
     e.preventDefault();
     toggleModal();
     updateAuthAction(ActionTypes.Login);
-  };
+  }, [toggleModal, updateAuthAction]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = useCallback(async (data: any) => {
     try {
       setApiError("");
       const result = await postApi("/auth", data);
@@ -36,9 +36,9 @@ const Register = () => {
       console.log("Error: ", e?.response?.data || e);
       setApiError(e?.response?.data?.message || "Invalid Credentials");
     }
-  };
+  }, [login, toggleModal]);
 
-  const FORM_FIELDS = [
+  const FORM_FIELDS = useMemo(() => [
     {
       type: "text",
       fieldName: "firstName",
@@ -75,7 +75,7 @@ const Register = () => {
         },
       },
     },
-  ];
+  ], []);
 
   return (
     <div className="flex flex-col items-center p-4 border-2 border-solid shadow-lg w-full border-foreground-night-400 bg-custom-gradient bg-blend-hard-light rounded-xl">
@@ -115,9 +115,8 @@ const Register = () => {
         {FORM_FIELDS.map((item, index: number) => (
           <Fragment key={`register-form-${index}`}>
             <input
-              className={`flex w-full px-3 py-2 ${
-                index > 0 ? "mt-4" : ""
-              } text-white border rounded-lg focus:ring focus:ring-indigo-300 bg-foreground-night-100 border-foreground-night-400`}
+              className={`flex w-full px-3 py-2 ${index > 0 ? "mt-4" : ""
+                } text-white border rounded-lg focus:ring focus:ring-indigo-300 bg-foreground-night-100 border-foreground-night-400`}
               type={item.type}
               placeholder={item.label}
               {...register(item.fieldName, item.validation)}

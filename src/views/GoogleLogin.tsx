@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import { getApi } from "../services/axios.service";
 
 const GoogleLogin = () => {
 
-  const handleClick = async () => {
+  const handleClick = useCallback(async () => {
     const response = await getApi("/users/google");
     window.location.href = response.url;
-  };
+  }, []);
   return (
     <div>
       <button onClick={handleClick}>Click</button>

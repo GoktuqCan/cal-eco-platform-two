@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 
 import user, { StatsTimelines } from "../../__mocks__/StrangerProfile";
@@ -20,9 +20,9 @@ type Stats = {
 const BannerSection = () => {
   const navigate = useNavigate();
 
-  const handleEditProfile = () => {
+  const handleEditProfile = useCallback(() => {
     navigate("/edit-profile");
-  };
+  }, [navigate]);
 
   return (
     <>
