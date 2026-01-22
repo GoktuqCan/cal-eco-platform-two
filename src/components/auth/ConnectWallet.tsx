@@ -76,10 +76,10 @@ const ConnectWallet: React.FC<ConnectModalProps> = ({
           role="dialog"
           aria-modal="true"
           aria-labelledby="connect-wallet-title"
+          onClick={() => setIsModalOpen(false)}
         >
           <div
             className="absolute inset-0 bg-black/60"
-            onClick={() => setIsModalOpen(false)}
           />
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <div
@@ -100,7 +100,7 @@ const ConnectWallet: React.FC<ConnectModalProps> = ({
                   <a
                     href="#aa"
                     className="ml-1 font-semibold text-primary-900-high-emphasis hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-900-high-emphasis/50 rounded-sm"
-                 >
+                  >
                     Register here
                   </a>
                 </p>
