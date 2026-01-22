@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Wheel } from "react-custom-roulette";
 import pointer from "../assets/images/pointer.svg";
 import { WheelData } from "react-custom-roulette/dist/components/Wheel/types";
@@ -22,13 +22,13 @@ const Spinner = () => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
 
-  const handleSpinClick = () => {
+  const handleSpinClick = useCallback(() => {
     if (!mustSpin) {
       const newPrizeNumber = Math.floor(Math.random() * options.length);
       setPrizeNumber(newPrizeNumber);
       setMustSpin(true);
     }
-  };
+  }, [mustSpin, setPrizeNumber, setMustSpin]);
 
   return (
     <div className="flex flex-col items-center justify-center">
