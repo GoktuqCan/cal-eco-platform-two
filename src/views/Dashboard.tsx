@@ -1,6 +1,6 @@
-import React, { useEffect, useContext, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { BigNumber, Contract } from "ethers";
-import { MetmaskContext } from "../contexts/MetmaskContextProvider";
+import { useMetamaskContext } from "../contexts/MetmaskContextProvider";
 import Timer from "../components/Timer";
 import Button from "../UI/Button";
 import {
@@ -64,13 +64,12 @@ const Tabs = () => {
 
 const Dashboard: React.FC<{}> = () => {
   const { account } = useWeb3React();
-  const {
-    lumanagiPredictionV1Contract,
-    postTransaction,
-    eacAggregatorProxyContract,
-    getBalance,
-    lumanagiPredictionV1ContractSocket,
-  } = useContext(MetmaskContext);
+  const lumanagiPredictionV1Contract = useMetamaskContext((state) => state.lumanagiPredictionV1Contract);
+  const postTransaction = useMetamaskContext((state) => state.postTransaction);
+  const eacAggregatorProxyContract = useMetamaskContext((state) => state.eacAggregatorProxyContract);
+  const getBalance = useMetamaskContext((state) => state.getBalance);
+  const lumanagiPredictionV1ContractSocket = useMetamaskContext((state) => state.lumanagiPredictionV1ContractSocket);
+  
   const [userRounds, setUserRounds] = useState<any>({});
   const [rounds, setRounds] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -106,8 +105,7 @@ const Dashboard: React.FC<{}> = () => {
   );
 
   const setDisplayData = useCallback(async (selectedEpoch: number) => {
-    const epochIds = [];
-    const tempRounds = [];
+    const tempRounds: any[] = [];
     const prevData: any = {};
     if (rounds.length > 0) {
       rounds.forEach((round) => {
@@ -124,7 +122,6 @@ const Dashboard: React.FC<{}> = () => {
         epoch: selectedEpoch - index,
       });
     }
-    epochIds.push(selectedEpoch);
     tempRounds.push({
       live: true,
       active: true,
@@ -132,7 +129,6 @@ const Dashboard: React.FC<{}> = () => {
       ...(prevData[selectedEpoch] ? prevData[selectedEpoch] : {}),
     });
     for (let index = 1; index <= NEXT_ROUNDS; index++) {
-      epochIds.push(selectedEpoch + index);
       tempRounds.push({
         live: false,
         active: index > 1 ? false : true,
@@ -149,7 +145,7 @@ const Dashboard: React.FC<{}> = () => {
       convertEpochToDate(lockEpochDataTimpStamp)
     );
     setOldest(allData[0]);
-    setRounds(allData.filter((data, index) => index !== 0));
+    setRounds(allData.filter((_, index) => index !== 0));
     if (secondsData > 0) {
       setSeconds(secondsData % 60);
       setMinutes(secondsData < 60 ? 0 : Math.floor(secondsData / 60));
@@ -486,12 +482,12 @@ const Dashboard: React.FC<{}> = () => {
                   loading={loading}
                   betBearHandler={betBearHandler}
                   betBullHandler={betBullHandler}
-                  bearAmount={currentEpochData.bearAmount}
-                  bullAmount={currentEpochData.bullAmount}
+                  bearAmount={currentEpochData?.bearAmount || 0}
+                  bullAmount={currentEpochData?.bullAmount || 0}
                   disableUpDown={disableUpDown}
                   userRounds={userRounds}
-                  totalAmount={currentEpochData.totalAmount}
-                  totalAmountDisplay={currentEpochData.totalAmountDisplay}
+                  totalAmount={currentEpochData?.totalAmount || 0}
+                  totalAmountDisplay={currentEpochData?.totalAmountDisplay || 0}
                 />
               </React.Fragment>
             );

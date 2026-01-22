@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useRef, useContext, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { BigNumber } from "@ethersproject/bignumber";
 
 import Button from "../../UI/Button";
@@ -11,7 +11,7 @@ import upSideSvg from "../../assets/images/UpSide.svg";
 import downSideSvg from "../../assets/images/DownSide.svg";
 import Tick from "../../assets/images/Tick.gif";
 
-import { MetmaskContext } from "../../contexts/MetmaskContextProvider";
+import { useMetamaskContext } from "../../contexts/MetmaskContextProvider";
 import {
   getMaticValue,
   getGweiValue,
@@ -183,13 +183,15 @@ export const FlipCardBack = ({
 
   const percentages = [10, 25, 50, 75, 100];
   //TODO here
-  const { balance, getBalance, setBalance } = useContext(MetmaskContext);
+  const balance = useMetamaskContext((state) => state.balance);
+  const getBalance = useMetamaskContext((state) => state.getBalance);
+  const setBalance = useMetamaskContext((state) => state.setBalance);
 
   useEffect(() => {
     (async () => {
       setBalance(await getBalance());
     })();
-  }, []);
+  }, [getBalance, setBalance]);
 
   useEffect(() => {
     if (balance) {
@@ -199,7 +201,7 @@ export const FlipCardBack = ({
         )
       );
     }
-  }, [rangeValue]);
+  }, [rangeValue, balance]);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback((e) => {
     e.preventDefault();
@@ -377,7 +379,7 @@ export function Live({
     if (disabledBack && account) {
       setDisabledBack(false);
     }
-  }, [account]);
+  }, [account, disabledBack]);
 
   return (
     <div className="h-full flip-card">

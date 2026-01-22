@@ -1,15 +1,16 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useContext, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 
 import { ReactComponent as GoogleButton } from "../../assets/images/GoogleButton.svg";
 import { postApi } from "../../services/axios.service";
 import { handleSignInWithGoogleClick } from "../../services/auth.service";
 import useAuth from "../../hooks/useAuth";
-import { ActionTypes, AuthContext } from "../../contexts/AuthContext";
+import { ActionTypes, useAuthContext } from "../../contexts/AuthContext";
 
 const Login = () => {
-  const { updateAuthAction, toggleModal } = useContext(AuthContext);
+  const updateAuthAction = useAuthContext((state) => state.updateAuthAction);
+  const toggleModal = useAuthContext((state) => state.toggleModal);
   const {
     register,
     handleSubmit,
@@ -20,7 +21,7 @@ const Login = () => {
 
   const [apiError, setApiError] = useState("");
 
-  const handleRedirectToRegister = useCallback((e: any) => {
+  const handleRedirectToRegister = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     toggleModal();
     updateAuthAction(ActionTypes.Register);
@@ -30,15 +31,16 @@ const Login = () => {
     updateAuthAction(ActionTypes.ForgotPassword);
   }, [updateAuthAction]);
 
-  const onSubmit = useCallback(async (data: any) => {
+  const onSubmit = useCallback(async (data: Record<string, unknown>) => {
     try {
       setApiError("");
       const result = await postApi("/auth/login", data);
       login(result.data);
       toggleModal();
-    } catch (e: any) {
-      console.log("Error: ", e?.response?.data || e);
-      setApiError(e?.response?.data?.message || "Invalid Credentials");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } };
+      console.log("Error: ", error?.response?.data || e);
+      setApiError(error?.response?.data?.message || "Invalid Credentials");
     }
   }, [login, toggleModal]);
 

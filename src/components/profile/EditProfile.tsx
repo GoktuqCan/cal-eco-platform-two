@@ -1,28 +1,28 @@
-import React, { Fragment, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { ReactComponent as CopyIcon } from "../../assets/images/copy.svg";
 import { getApi, putApi } from "../../services/axios.service";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
-import { ActionTypes, AuthContext } from "../../contexts/AuthContext";
+import { ActionTypes, useAuthContext } from "../../contexts/AuthContext";
 
 type InputProps = {
   type: string;
   label: string;
   placeholder: string;
   name: string;
-  EndIcon?: any;
-  props?: any;
+  EndIcon?: React.ReactNode;
+  props?: Record<string, unknown>;
 };
 
 type ProfileImageProps = {
   label: string;
-  inputRef: any;
+  inputRef: React.RefObject<HTMLInputElement>;
   size?: string;
-  selectedImage: any;
-  setImage: any;
-  handleImageSelect: any;
+  selectedImage: File | null;
+  setImage: React.Dispatch<React.SetStateAction<File | null>>;
+  handleImageSelect: (e: React.ChangeEvent<HTMLInputElement>, type: string) => void;
   type: string;
 };
 
@@ -32,7 +32,7 @@ type ButtonProps = {
   customClass?: string;
   isValid?: boolean;
   isLoading?: boolean;
-  onClick?: any;
+  onClick?: () => void;
 };
 
 const Button = ({
@@ -172,12 +172,12 @@ const Tags = ({ tags }: TagsProps) => {
 
 const EditProfile = () => {
   const { user, updateUserInfo } = useAuth();
-  const { updateAuthAction } = useContext(AuthContext);
-  const profileImageInputRef: any = useRef(null);
-  const banner1InputRef: any = useRef(null);
+  const updateAuthAction = useAuthContext((state) => state.updateAuthAction);
+  const profileImageInputRef = useRef<HTMLInputElement>(null);
+  const banner1InputRef = useRef<HTMLInputElement>(null);
 
-  const [profileImage, setProfileImage] = useState<any>(null);
-  const [banner1, setBanner1] = useState<any>(null);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [banner1, setBanner1] = useState<File | null>(null);
 
   const {
     register,
@@ -191,20 +191,21 @@ const EditProfile = () => {
 
   const username = watch("username");
 
-  const handleImageSelect = useCallback((e: any, type = "profile") => {
-    const file = e.target.files[0];
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>, type = "profile") => {
+    const file = e.target.files?.[0] || null;
     if (type === "profile") setProfileImage(file);
     else if (type === "banner1") setBanner1(file);
-  }, [setProfileImage, setBanner1]);
+  }, []);
 
-  const onSubmit = useCallback(async (data: any) => {
+  const onSubmit = useCallback(async (data: Record<string, unknown>) => {
     try {
       await putApi("/users/", data);
       await updateUserInfo();
       toast.success("Updated successfully");
-    } catch (e: any) {
-      console.log("Error: ", e?.response?.data || e);
-      toast.error(e?.response?.data?.message || "Something went wrong");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } };
+      console.log("Error: ", error?.response?.data || e);
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   }, [updateUserInfo]);
 

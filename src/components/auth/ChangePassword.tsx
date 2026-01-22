@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { Fragment, useCallback, useContext, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { putApi } from "../../services/axios.service";
 import { toast } from "react-toastify";
 import {
-  AuthContext,
+  useAuthContext,
   ActionTypes,
 } from "../../contexts/AuthContext";
 
@@ -16,19 +16,21 @@ const ChangePassword = () => {
     getValues,
   } = useForm();
 
-  const { toggleModal, updateAuthAction } = useContext(AuthContext);
+  const toggleModal = useAuthContext((state) => state.toggleModal);
+  const updateAuthAction = useAuthContext((state) => state.updateAuthAction);
 
   const [apiError, setApiError] = useState("");
 
-  const onSubmit = useCallback(async (data: any) => {
+  const onSubmit = useCallback(async (data: Record<string, unknown>) => {
     try {
       setApiError("");
       const result = await putApi(`/users/change-password`, data);
       toast.success(result.message || "Done");
       toggleModal();
-    } catch (e: any) {
-      console.log("Error: ", e?.response?.data || e);
-      toast.error(e?.response?.data?.message || "Invalid or expired token!");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } };
+      console.log("Error: ", error?.response?.data || e);
+      toast.error(error?.response?.data?.message || "Invalid or expired token!");
     }
   }, [toggleModal]);
 
@@ -69,7 +71,7 @@ const ChangePassword = () => {
     },
   ], [getValues]);
 
-  const handleRedirectToLogin = useCallback((e: any) => {
+  const handleRedirectToLogin = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     toggleModal();
     updateAuthAction(ActionTypes.Login);

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import LumangiLogo from "../assets/images/LumangiLogo.svg";
 import RewardWheel from "../assets/images/RewardWheel.svg";
@@ -6,7 +6,7 @@ import RewardWheel from "../assets/images/RewardWheel.svg";
 import Button from "../UI/Button";
 import { useWeb3React } from "@web3-react/core";
 import ConnectWallet from "./auth/ConnectWallet";
-import { AuthContext, ActionTypes } from "../contexts/AuthContext";
+import { useAuthContext, ActionTypes } from "../contexts/AuthContext";
 // const style = {
 //   position: "absolute" as "absolute",
 //   top: "50%",
@@ -17,7 +17,8 @@ import { AuthContext, ActionTypes } from "../contexts/AuthContext";
 // };
 
 export function Header() {
-  const { updateAuthAction, isAuthenticated } = useContext(AuthContext);
+  const updateAuthAction = useAuthContext((state) => state.updateAuthAction);
+  const isAuthenticated = useAuthContext((state) => state.isAuthenticated);
   const { account } = useWeb3React();
 
   const handleLogin = useCallback(() => {

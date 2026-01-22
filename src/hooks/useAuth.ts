@@ -1,31 +1,33 @@
-import { useCallback, useEffect, useContext } from "react";
+import { useCallback, useEffect } from "react";
 import { ACCESS_TOKEN_LOCAL_STORAGE } from "../constants/common";
 import { getApi } from "../services/axios.service";
-import { AuthContext } from "../contexts/AuthContext";
+import { useAuthContext, IUser } from "../contexts/AuthContext";
 
 const useAuth = () => {
-  const { user, setUser, isAuthenticated, setIsAuthenticated } =
-    useContext(AuthContext);
+  const user = useAuthContext((state) => state.user);
+  const setUser = useAuthContext((state) => state.setUser);
+  const isAuthenticated = useAuthContext((state) => state.isAuthenticated);
+  const setIsAuthenticated = useAuthContext((state) => state.setIsAuthenticated);
 
   // Simulate a login action
-  const login = (data: any) => {
+  const login = useCallback((data: { access_token?: string } & Partial<IUser>) => {
     // Perform login logic, set user data
     const { access_token = "", ...rest } = data;
-    setUser({ ...rest });
+    setUser({ ...rest } as IUser);
     console.log("Logged in ::::", data);
     if (access_token) {
       setIsAuthenticated(true);
-      localStorage.setItem(ACCESS_TOKEN_LOCAL_STORAGE, data.access_token);
+      localStorage.setItem(ACCESS_TOKEN_LOCAL_STORAGE, access_token);
     }
-  };
+  }, [setUser, setIsAuthenticated]);
 
   // Simulate a logout action
-  const logout = () => {
+  const logout = useCallback(() => {
     // Perform logout logic, clear user data
     setUser(null);
     localStorage.removeItem(ACCESS_TOKEN_LOCAL_STORAGE);
     setIsAuthenticated(false);
-  };
+  }, [setUser, setIsAuthenticated]);
 
   const updateUserInfo = useCallback(async () => {
     const result = await getApi("/users/me");

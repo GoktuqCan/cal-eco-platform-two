@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { postApi } from "../../services/axios.service";
 import { toast } from "react-toastify";
-import { ActionTypes, AuthContext } from "../../contexts/AuthContext";
+import { ActionTypes, useAuthContext } from "../../contexts/AuthContext";
 
 const ForgotPassword = () => {
-  const { toggleModal, updateAuthAction } = useContext(AuthContext);
+  const toggleModal = useAuthContext((state) => state.toggleModal);
+  const updateAuthAction = useAuthContext((state) => state.updateAuthAction);
   const {
     register,
     handleSubmit,
@@ -15,13 +16,13 @@ const ForgotPassword = () => {
 
   const [apiError, setApiError] = useState("");
 
-  const handleRedirectToLogin = useCallback((e: any) => {
+  const handleRedirectToLogin = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     toggleModal();
     updateAuthAction(ActionTypes.Login);
   }, [toggleModal, updateAuthAction]);
 
-  const onSubmit = useCallback(async (data: any) => {
+  const onSubmit = useCallback(async (data: Record<string, unknown>) => {
     try {
       setApiError("");
       const result = await postApi("/users/forgot-password", data);
@@ -29,9 +30,10 @@ const ForgotPassword = () => {
         result.message || "Link has been sent to this email address"
       );
       toggleModal();
-    } catch (e: any) {
-      console.log("Error: ", e?.response?.data || e);
-      setApiError(e?.response?.data?.message || "Invalid Credentials");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } };
+      console.log("Error: ", error?.response?.data || e);
+      setApiError(error?.response?.data?.message || "Invalid Credentials");
     }
   }, [toggleModal]);
 

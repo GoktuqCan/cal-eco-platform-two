@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   useState,
-  createContext,
   useEffect,
   ReactNode,
   Dispatch,
   SetStateAction,
   useCallback,
 } from "react";
+import { createContext, useContextSelector } from "@fluentui/react-context-selector";
 import { ethers, BigNumber } from "ethers";
 
 import EacAggregatorProxyContractAbi from "../contract/abi/EACAggregatorProxyAbi.json";
@@ -24,8 +24,8 @@ type MetamaskContextType = {
   setErrorMessage: Dispatch<SetStateAction<string | null>>;
   balance: null | BigNumber;
   setBalance: Dispatch<SetStateAction<BigNumber | null>>;
-  eacAggregatorProxyContract: any;
-  lumanagiPredictionV1Contract: any;
+  eacAggregatorProxyContract: ethers.Contract | null;
+  lumanagiPredictionV1Contract: ethers.Contract | null;
   postTransaction: (
     to: string,
     data: string,
@@ -34,7 +34,7 @@ type MetamaskContextType = {
     callback?: Function
   ) => void;
   getBalance: () => Promise<BigNumber>;
-  lumanagiPredictionV1ContractSocket: any;
+  lumanagiPredictionV1ContractSocket: ethers.Contract | null;
 };
 
 export const MetmaskContext = createContext<MetamaskContextType>({
@@ -49,6 +49,10 @@ export const MetmaskContext = createContext<MetamaskContextType>({
   getBalance: () => Promise.resolve(BigNumber.from(0)),
 });
 
+export function useMetamaskContext<T>(selector: (state: MetamaskContextType) => T): T {
+  return useContextSelector(MetmaskContext, selector);
+}
+
 const MetmaskContextProvider: React.FC<{
   children: ReactNode;
 }> = ({ children }) => {
@@ -58,15 +62,15 @@ const MetmaskContextProvider: React.FC<{
   const [balance, setBalance] = useState<null | BigNumber>(null);
 
   const [eacAggregatorProxyContract, setEacAggregatorProxyContract] =
-    useState<any>(null);
+    useState<ethers.Contract | null>(null);
   const [lumanagiPredictionV1Contract, setLumanagiPredictionV1Contract] =
-    useState<any>(null);
+    useState<ethers.Contract | null>(null);
   const [
     lumanagiPredictionV1ContractSocket,
     setLumanagiPredictionV1ContractSocket,
-  ] = useState<any>(null);
+  ] = useState<ethers.Contract | null>(null);
 
-  const [signer, setSigner] = useState<any | ethers.providers.JsonRpcSigner>(
+  const [signer, setSigner] = useState<ethers.providers.JsonRpcSigner | null>(
     null
   );
 
@@ -88,18 +92,18 @@ const MetmaskContextProvider: React.FC<{
         
         const eacContract = new ethers.Contract(
           EAC_AGGREGATOR_PROXY_ADDRESS,
-          EacAggregatorProxyContractAbi as any,
+          EacAggregatorProxyContractAbi as ethers.ContractInterface,
           httpProvider
         );
         const lumangiContract = new ethers.Contract(
           LUMANAGI_PREDICTION_V1_ADDRESS,
-          LumanagiPredictionV1Abi as any,
+          LumanagiPredictionV1Abi as ethers.ContractInterface,
           httpProvider
         );
 
         const socketInstance = new ethers.Contract(
           LUMANAGI_PREDICTION_V1_ADDRESS,
-          LumanagiPredictionV1Abi as any,
+          LumanagiPredictionV1Abi as ethers.ContractInterface,
           wsProvider
         );
         
@@ -117,12 +121,12 @@ const MetmaskContextProvider: React.FC<{
         setErrorMessage("Failed to connect to the blockchain network");
       }
     }
-  }, [provider, chainId]);
+  }, [provider]);
 
   /**
    *
    */
-  const getBalance = async () => {
+  const getBalance = useCallback(async () => {
     if (window.ethereum) {
       try {
         if (window.ethereum.selectedAddress) {
@@ -140,7 +144,7 @@ const MetmaskContextProvider: React.FC<{
     } else {
       throw new Error("Install MetaMask");
     }
-  };
+  }, [provider]);
 
   /**
    * Handles post call of contracts
@@ -150,7 +154,7 @@ const MetmaskContextProvider: React.FC<{
    * @param from from account[Optional]
    */
 
-  const postTransaction = async (
+  const postTransaction = useCallback(async (
     to: string,
     data: string,
     value?: BigNumber | number,
@@ -179,13 +183,13 @@ const MetmaskContextProvider: React.FC<{
         callback(txHash);
       }
     }
-  };
+  }, [provider, signer]);
 
   useEffect(() => {
     if (provider) {
       setContracts();
     }
-  }, [provider, chainId]);
+  }, [provider, chainId, setContracts]);
 
   return (
     <MetmaskContext.Provider

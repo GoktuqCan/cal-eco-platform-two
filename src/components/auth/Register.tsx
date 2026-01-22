@@ -1,15 +1,16 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { Fragment, useCallback, useContext, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { ReactComponent as GoogleButton } from "../../assets/images/GoogleButton.svg";
 import { postApi } from "../../services/axios.service";
 import { handleSignInWithGoogleClick } from "../../services/auth.service";
 import useAuth from "../../hooks/useAuth";
-import { ActionTypes, AuthContext } from "../../contexts/AuthContext";
+import { ActionTypes, useAuthContext } from "../../contexts/AuthContext";
 
 const Register = () => {
-  const { toggleModal, updateAuthAction } = useContext(AuthContext);
+  const toggleModal = useAuthContext((state) => state.toggleModal);
+  const updateAuthAction = useAuthContext((state) => state.updateAuthAction);
   const {
     register,
     handleSubmit,
@@ -20,21 +21,22 @@ const Register = () => {
 
   const [apiError, setApiError] = useState("");
 
-  const handleRedirectToLogin = useCallback((e: any) => {
+  const handleRedirectToLogin = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     toggleModal();
     updateAuthAction(ActionTypes.Login);
   }, [toggleModal, updateAuthAction]);
 
-  const onSubmit = useCallback(async (data: any) => {
+  const onSubmit = useCallback(async (data: Record<string, unknown>) => {
     try {
       setApiError("");
       const result = await postApi("/auth", data);
       login(result.data);
       toggleModal();
-    } catch (e: any) {
-      console.log("Error: ", e?.response?.data || e);
-      setApiError(e?.response?.data?.message || "Invalid Credentials");
+    } catch (e: unknown) {
+      const error = e as { response?: { data?: { message?: string } } };
+      console.log("Error: ", error?.response?.data || e);
+      setApiError(error?.response?.data?.message || "Invalid Credentials");
     }
   }, [login, toggleModal]);
 
